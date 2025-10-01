@@ -1,0 +1,34 @@
+# Ignore plugin directories (if using lazy.nvim or packer)
+lazy/
+packer_compiled.lua
+
+# Ignore cache and temporary files
+.netrwhist
+*.tmp
+*.swp
+*.swo
+*~
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore personal/sensitive files
+.env
+.env.local
+secrets.lua
+
+# Ignore compiled files
+*.pyc
+*.pyo
+
+# Ignore session files
+Session.vim
+.session
+
+# Ignore undo files if stored in config directory
+*.un~
+
+# Ignore debug files
+debug.log
+*.log
