@@ -16,7 +16,7 @@ return {
   keys = {
     { "<leader>gg", "<cmd>LazyGitTab<cr>", desc = "LazyGit in new tab" },
     { "<leader>gf", "<cmd>LazyGitCurrentFileTab<cr>", desc = "LazyGit current file dir in new tab" },
-    { "<leader>gl", "<cmd>LazyGitTab<cr>", desc = "LazyGit in new tab" },
+    -- Removed duplicate <leader>gl mapping
   },
   config = function()
     -- Configure lazygit to open in a new tab instead of floating window
@@ -61,7 +61,7 @@ return {
     -- Git-related keymaps using tabs
     map("n", "<leader>gg", "<cmd>LazyGitTab<cr>", { desc = "Open LazyGit in new tab" })
     map("n", "<leader>gf", "<cmd>LazyGitCurrentFileTab<cr>", { desc = "LazyGit current file dir in new tab" })
-    map("n", "<leader>gl", "<cmd>LazyGitTab<cr>", { desc = "Open LazyGit in new tab" })
+    -- Removed duplicate <leader>gl mapping
     
     -- Optional: Add a keymap to close lazygit tab quickly
     map("t", "<C-q>", "<C-\\><C-n>:q<cr>", { desc = "Close terminal (lazygit) tab", buffer = true })

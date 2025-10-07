@@ -76,10 +76,8 @@ return {
           nowait = true,
         },
         mappings = {
-          ["<space>"] = {
-            "toggle_node",
-            nowait = false, -- disable `nowait` if you have existing combos starting with this char that you want to use 
-          },
+          ["<CR>"] = "toggle_node", -- Use Enter instead of space
+          ["o"] = "toggle_node", -- Alternative: use 'o' to open/toggle
           ["<2-LeftMouse>"] = "open",
           ["<cr>"] = "open",
           ["<esc>"] = "cancel", -- close preview or floating neo-tree window
