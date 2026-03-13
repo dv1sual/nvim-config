@@ -13,13 +13,14 @@ vim.g.maplocalleader = ' '
 
 -- ---------------------------------------------------------------------------
 -- ➊  Short title for terminal tabs
-vim.o.title       = true      -- enable terminal title reporting
-vim.o.titlestring = '%t'      -- %t → tail (filename + extension)
+vim.o.title       = true           -- enable terminal title reporting
+vim.o.titlestring = 'nvim: %t'    -- WezTerm reads this to identify nvim tabs
 
 -- ---------------------------------------------------------------------------
 -- Core configuration
 require('core.options')
 require('core.keymaps')
+require('core.claude')
 
 -- ---------------------------------------------------------------------------
 -- Plugin manager

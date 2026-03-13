@@ -1,117 +1,97 @@
 -- lua/plugins/dash.lua
-local logo = [[
 
-██████╗ ██╗   ██╗ ██╗███████╗██╗   ██╗ █████╗ ██╗     
-██╔══██╗██║   ██║███║██╔════╝██║   ██║██╔══██╗██║     
-██║  ██║██║   ██║╚██║███████╗██║   ██║███████║██║     
-██║  ██║╚██╗ ██╔╝ ██║╚════██║██║   ██║██╔══██║██║     
-██████╔╝ ╚████╔╝  ██║███████║╚██████╔╝██║  ██║███████╗
-╚═════╝   ╚═══╝   ╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
-                                                      
-]]
+local day_colors = {
+  Monday    = "#719cd6",
+  Tuesday   = "#81b29a",
+  Wednesday = "#dbc074",
+  Thursday  = "#9d79d6",
+  Friday    = "#c94f6d",
+  Saturday  = "#63cdcf",
+  Sunday    = "#d16983",
+}
 
 return {
   "nvimdev/dashboard-nvim",
   event = "VimEnter",
-  opts = function()
-    local opts = {
-      theme = "doom",
-      hide = {
-        -- this is taken care of by lualine
-        -- enabling this messes up the actual laststatus setting after loading a file
-        statusline = false,
-      },
+  config = function()
+    local today = tostring(os.date("%A"))
+    local color = day_colors[today] or "#dbc074"
+
+    require("dashboard").setup({
+      theme = "hyper",
       config = {
-        header = vim.split(logo, "\n"),
-        -- Add spacing before center content to push it down
-        center = {
-          { 
-            action = function() 
-              require("lazy").load({ plugins = { "telescope.nvim" } })
-              require("telescope.builtin").find_files() 
-            end,                           
-            desc = " Find File",       
-            icon = " ", 
-            key = "f" 
+        week_header = {
+          enable = true,
+        },
+        shortcut = {
+          {
+            icon = "󰊳 ",
+            desc = "Update",
+            group = "@property",
+            action = "Lazy update",
+            key = "u",
           },
-          { action = "ene | startinsert",                              desc = " New File",        icon = " ", key = "n" },
-          { 
-            action = function() 
+          {
+            icon = " ",
+            desc = "Files",
+            group = "DiagnosticHint",
+            action = function()
               require("lazy").load({ plugins = { "telescope.nvim" } })
-              require("telescope.builtin").oldfiles() 
-            end,                            
-            desc = " Recent Files",    
-            icon = " ", 
-            key = "r" 
+              require("telescope.builtin").find_files()
+            end,
+            key = "f",
           },
-          { 
-            action = function() 
-              require("lazy").load({ plugins = { "telescope.nvim" } })
-              require("telescope.builtin").live_grep() 
-            end,                           
-            desc = " Find Text",       
-            icon = " ", 
-            key = "g" 
+          {
+            icon = "󰒲 ",
+            desc = "Lazy",
+            group = "DiagnosticInfo",
+            action = "Lazy",
+            key = "l",
           },
-          { 
-            action = function() 
-              require("lazy").load({ plugins = { "telescope.nvim" } })
-              require("telescope.builtin").find_files({ cwd = vim.fn.expand("~/.config/nvim") }) 
-            end, 
-            desc = " Config",          
-            icon = " ", 
-            key = "c" 
+          {
+            icon = " ",
+            desc = "dotfiles",
+            group = "Number",
+            action = function()
+              require("telescope.builtin").find_files({ cwd = vim.fn.stdpath("config") })
+            end,
+            key = "d",
           },
-          { action = function() require("persistence").load() end,     desc = " Restore Session", icon = " ", key = "s" },
-          { action = "Lazy",                                           desc = " Lazy",            icon = "󰒲 ", key = "l" },
-          { action = function() vim.api.nvim_input("<cmd>qa<cr>") end, desc = " Quit",            icon = " ", key = "q" },
+          {
+            icon = " ",
+            desc = "Quit",
+            group = "DiagnosticError",
+            action = "qa",
+            key = "q",
+          },
+        },
+        packages = { enable = true },
+        project = {
+          enable = true,
+          limit = 8,
+          icon = "󰀿 ",
+          label = " Recently Projects:",
+          action = "Telescope find_files cwd=",
+        },
+        mru = {
+          limit = 10,
+          icon = "󱋢 ",
+          label = " Most Recent Files:",
+          cwd_only = false,
         },
         footer = function()
-          local stats = require("lazy").stats()
-          local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
-          return { "⚡ Neovim loaded " .. stats.loaded .. "/" .. stats.count .. " plugins in " .. ms .. "ms" }
+          return { "", "neovim,  btw." }
         end,
       },
-    }
-    
-    -- Calculate dynamic spacing for centering
-    local header_height = #opts.config.header
-    local center_height = #opts.config.center
-    local footer_height = 1
-    local total_content_height = header_height + center_height + footer_height + 4 -- +4 for spacing
-    local screen_height = vim.o.lines
-    local vertical_padding = math.max(0, math.floor((screen_height - total_content_height) / 2))
-    
-    -- Add empty lines at the top of header for vertical centering
-    local centered_header = {}
-    for i = 1, vertical_padding do
-      table.insert(centered_header, "")
+    })
+
+    local function apply_day_hl()
+      vim.api.nvim_set_hl(0, "DashboardHeader",  { fg = color, bold = true })
+      vim.api.nvim_set_hl(0, "DashboardWeekDay", { fg = "#738091" })
     end
-    for _, line in ipairs(opts.config.header) do
-      table.insert(centered_header, line)
-    end
-    opts.config.header = centered_header
-    
-    -- Center the button text horizontally
-    for _, button in ipairs(opts.config.center) do
-      local button_text = button.icon .. button.desc
-      local padding = math.max(0, math.floor((vim.o.columns - #button_text) / 2))
-      button.desc = button.desc .. string.rep(" ", 43 - #button.desc)
-      button.key_format = "  %s"
-    end
-    
-    -- open dashboard after closing lazy
-    if vim.o.filetype == "lazy" then
-      vim.api.nvim_create_autocmd("WinClosed", {
-        pattern = tostring(vim.api.nvim_get_current_win()),
-        once = true,
-        callback = function()
-          vim.schedule(function()
-            vim.api.nvim_exec_autocmds("UIEnter", { group = "dashboard" })
-          end)
-        end,
-      })
-    end
-    return opts
+
+    apply_day_hl()
+    -- Re-apply after colorscheme loads (nordfox resets these)
+    vim.api.nvim_create_autocmd("ColorScheme", { callback = apply_day_hl })
   end,
 }

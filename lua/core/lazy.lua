@@ -24,7 +24,7 @@ require("lazy").setup({
 }, {
   -- Lazy.nvim configuration
   defaults = {
-    lazy = false, -- should plugins be lazy-loaded?
+    lazy = true,  -- plugins without explicit events/keys/cmds are lazy by default
     version = false, -- always use the latest git commit
   },
   install = {
@@ -32,8 +32,7 @@ require("lazy").setup({
     colorscheme = { "nightfox" }, -- try to load one of these colorschemes when starting an installation during startup
   },
   checker = {
-    enabled = true, -- automatically check for plugin updates
-    notify = false, -- don't notify when updates are available
+    enabled = false, -- don't check for updates on every startup (run :Lazy update manually)
   },
   change_detection = {
     enabled = true,

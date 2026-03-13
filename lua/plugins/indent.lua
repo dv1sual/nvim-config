@@ -8,9 +8,9 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     opts = {
       indent = {
-        char = "│", -- Character for indent lines
+        char = "│",
         tab_char = "│",
-        highlight = { "IblIndent" },
+        highlight = { "RainbowRed", "RainbowYellow", "RainbowBlue", "RainbowOrange", "RainbowGreen", "RainbowViolet", "RainbowCyan" },
         smart_indent_cap = true,
       },
       whitespace = {
@@ -75,38 +75,34 @@ return {
       },
     },
     config = function(_, opts)
-      require("ibl").setup(opts)
-      
-      -- Custom highlight groups for better colors
+      -- Define highlight groups BEFORE ibl.setup() so they exist when ibl checks for them
+      vim.api.nvim_set_hl(0, "RainbowRed",    { fg = "#E06C75" })
+      vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
+      vim.api.nvim_set_hl(0, "RainbowBlue",   { fg = "#61AFEF" })
+      vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
+      vim.api.nvim_set_hl(0, "RainbowGreen",  { fg = "#98C379" })
+      vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
+      vim.api.nvim_set_hl(0, "RainbowCyan",   { fg = "#56B6C2" })
+      vim.api.nvim_set_hl(0, "IblScope",      { fg = "#61AFEF", bold = true })
+
+      -- Re-apply after colorscheme changes (e.g. :colorscheme reload)
       local hooks = require("ibl.hooks")
-      
-      -- Set up rainbow colors for indentation
-      local highlight = {
-        "RainbowRed",
-        "RainbowYellow", 
-        "RainbowBlue",
-        "RainbowOrange",
-        "RainbowGreen",
-        "RainbowViolet",
-        "RainbowCyan",
-      }
-      
       hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-        vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
+        vim.api.nvim_set_hl(0, "RainbowRed",    { fg = "#E06C75" })
         vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
-        vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
+        vim.api.nvim_set_hl(0, "RainbowBlue",   { fg = "#61AFEF" })
         vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
-        vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
+        vim.api.nvim_set_hl(0, "RainbowGreen",  { fg = "#98C379" })
         vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
-        vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
-        
-        -- Set scope highlight to be more prominent
-        vim.api.nvim_set_hl(0, "IblScope", { fg = "#61AFEF", bold = true })
-        vim.api.nvim_set_hl(0, "IblIndent", { fg = "#3B4048" })
+        vim.api.nvim_set_hl(0, "RainbowCyan",   { fg = "#56B6C2" })
+        vim.api.nvim_set_hl(0, "IblScope",      { fg = "#61AFEF", bold = true })
       end)
-      
-      -- Optional: Enable rainbow indent for specific file types
-      vim.g.rainbow_delimiters = { highlight = highlight }
+
+      require("ibl").setup(opts)
+
+      vim.g.rainbow_delimiters = {
+        highlight = { "RainbowRed", "RainbowYellow", "RainbowBlue", "RainbowOrange", "RainbowGreen", "RainbowViolet", "RainbowCyan" },
+      }
     end,
   },
 
@@ -219,21 +215,21 @@ return {
         end, { desc = dir:sub(1, 1):upper() .. dir:sub(2) .. " Reference", buffer = buffer })
       end
       
-      map("]]", "next")
-      map("[[", "prev")
-      
-      -- also set it after loading ftplugins, since a lot overwrite [[ and ]]
+      map("]r", "next")
+      map("[r", "prev")
+
+      -- also set it after loading ftplugins, since a lot overwrite ]r and [r
       vim.api.nvim_create_autocmd("FileType", {
         callback = function()
           local buffer = vim.api.nvim_get_current_buf()
-          map("]]", "next", buffer)
-          map("[[", "prev", buffer)
+          map("]r", "next", buffer)
+          map("[r", "prev", buffer)
         end,
       })
     end,
     keys = {
-      { "]]", desc = "Next Reference" },
-      { "[[", desc = "Prev Reference" },
+      { "]r", desc = "Next Reference" },
+      { "[r", desc = "Prev Reference" },
     },
   },
 

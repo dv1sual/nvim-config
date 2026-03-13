@@ -68,7 +68,7 @@ return {
         -- Linters
         "eslint_d",        -- Fast ESLint daemon
       },
-      run_on_start = true,
+      run_on_start = false,
     },
   },
 
@@ -98,7 +98,14 @@ return {
           source = "if_many",
           prefix = "●",
         },
-        signs = true,
+        signs = {
+          text = {
+            [vim.diagnostic.severity.ERROR] = "",
+            [vim.diagnostic.severity.WARN] = "",
+            [vim.diagnostic.severity.HINT] = "",
+            [vim.diagnostic.severity.INFO] = "",
+          },
+        },
         underline = true,
         update_in_insert = false,
         severity_sort = true,
@@ -109,17 +116,6 @@ return {
           prefix = "",
         },
       })
-
-      -- Diagnostic signs
-      local signs = {
-        { name = "DiagnosticSignError", text = "" },
-        { name = "DiagnosticSignWarn", text = "" },
-        { name = "DiagnosticSignHint", text = "" },
-        { name = "DiagnosticSignInfo", text = "" },
-      }
-      for _, sign in ipairs(signs) do
-        vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
-      end
 
       -- LSP handlers with borders
       vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
@@ -136,30 +132,37 @@ return {
         
         local opts = { noremap = true, silent = true, buffer = bufnr }
 
-        -- LSP keymaps
+        -- LSP keymaps — lspsaga for enhanced UI, raw lsp for the rest
         vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-        vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-        vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
-        vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
+        vim.keymap.set("n", "gd", "<cmd>Lspsaga goto_definition<cr>", opts)
+        vim.keymap.set("n", "gp", "<cmd>Lspsaga peek_definition<cr>", opts)       -- peek inline
+        vim.keymap.set("n", "K",  "<cmd>Lspsaga hover_doc<cr>", opts)
+        vim.keymap.set("n", "gi", "<cmd>Lspsaga finder imp<cr>", opts)
+        vim.keymap.set("n", "gr", "<cmd>Lspsaga finder ref<cr>", opts)
+        vim.keymap.set("n", "<leader>k",  vim.lsp.buf.signature_help, opts)       -- was <C-k>
         vim.keymap.set("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, opts)
         vim.keymap.set("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, opts)
         vim.keymap.set("n", "<leader>wl", function()
           print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
         end, opts)
-        vim.keymap.set("n", "<leader>D", vim.lsp.buf.type_definition, opts)
-        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
-        vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-        vim.keymap.set("n", "<leader>f", function()
+        vim.keymap.set("n", "<leader>D",  vim.lsp.buf.type_definition, opts)
+        vim.keymap.set("n", "<leader>rn", "<cmd>Lspsaga rename<cr>", opts)
+        vim.keymap.set({ "n", "v" }, "<leader>ca", "<cmd>Lspsaga code_action<cr>", opts)
+        vim.keymap.set("n", "<leader>cf", function()
           vim.lsp.buf.format({ async = true })
         end, opts)
 
         -- Diagnostic keymaps
-        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-        vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, opts)
+        vim.keymap.set("n", "[d",        "<cmd>Lspsaga diagnostic_jump_prev<cr>", opts)
+        vim.keymap.set("n", "]d",        "<cmd>Lspsaga diagnostic_jump_next<cr>", opts)
+        vim.keymap.set("n", "<leader>e", "<cmd>Lspsaga show_line_diagnostics<cr>", opts)
         vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, opts)
+
+        -- Navic breadcrumbs (feeds lualine's context component)
+        local ok, navic = pcall(require, "nvim-navic")
+        if ok and client.server_capabilities.documentSymbolProvider then
+          navic.attach(client, bufnr)
+        end
 
         -- Highlight references when holding cursor
         if client.server_capabilities.documentHighlightProvider then
@@ -418,7 +421,7 @@ return {
       },
       lightbulb = {
         enable = true,
-        enable_in_insert = true,
+        enable_in_insert = false,
         sign = true,
         sign_priority = 40,
         virtual_text = true,

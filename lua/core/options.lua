@@ -4,9 +4,9 @@ local opt = vim.opt
 
 -- Font configuration (mainly for GUI versions)
 if vim.g.neovide then
-  vim.o.guifont = "JetBrainsMono Nerd Font:h12"
+  vim.o.guifont = "BlexMono Nerd Font Mono:h12"
 elseif vim.g.fvim then
-  vim.o.guifont = "JetBrainsMono Nerd Font:h12"
+  vim.o.guifont = "BlexMono Nerd Font Mono:h12"
 end
 
 -- Line numbers
@@ -42,6 +42,15 @@ opt.termguicolors = true  -- Enable 24-bit RGB colors
 -- Timing
 opt.updatetime = 250      -- Decrease update time
 opt.timeoutlen = 300      -- Decrease mapped sequence wait time
+
+-- Breathing room between window content and the global statusline.
+-- Set here AND in VimEnter because noice.nvim (command_palette preset)
+-- resets cmdheight to 0 during plugin setup — the autocmd wins last.
+opt.cmdheight = 2
+vim.api.nvim_create_autocmd("VimEnter", {
+  once = true,
+  callback = function() vim.opt.cmdheight = 2 end,
+})
 
 -- Command line
 opt.inccommand = "split"  -- Preview substitutions live, as you type!

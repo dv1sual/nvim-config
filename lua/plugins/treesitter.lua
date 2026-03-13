@@ -4,7 +4,7 @@ return {
   "nvim-treesitter/nvim-treesitter",
   version = false, -- last release is way too old and doesn't work on Windows
   build = ":TSUpdate",
-  event = { "VeryLazy" },
+  event = { "BufReadPost", "BufNewFile" },
   lazy = vim.fn.argc(-1) == 0, -- load treesitter early when opening a file from the cmdline
   init = function(plugin)
     -- PERF: add nvim-treesitter queries to the rtp and it's custom query predicates early
@@ -52,15 +52,10 @@ return {
       enable = true,
       additional_vim_regex_highlighting = false,
     },
-    indent = { 
-      enable = true 
-    },
-    
-    -- Enable folding
-    fold = {
+    indent = {
       enable = true
     },
-    
+
     ensure_installed = {
       -- Your main languages
       "python",
@@ -169,13 +164,6 @@ return {
   },
   config = function(_, opts)
     require("nvim-treesitter.configs").setup(opts)
-    
-    -- Enable folding based on treesitter
-    vim.opt.foldmethod = "expr"
-    vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
-    vim.opt.foldenable = false -- Start with folds open
-    vim.opt.foldlevel = 99
-    vim.opt.foldlevelstart = 99
-    vim.opt.foldcolumn = "1" -- Show fold column
+    -- Fold settings are managed by nvim-ufo in indent.lua — don't set them here
   end,
 }

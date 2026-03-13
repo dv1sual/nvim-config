@@ -178,34 +178,18 @@ return {
       end
     end)(),
     dependencies = {
-      {
-        "rafamadriz/friendly-snippets",
-        config = function()
-          require("luasnip.loaders.from_vscode").lazy_load()
-        end,
-      },
+      "rafamadriz/friendly-snippets",
     },
     opts = {
       history = true,
       delete_check_events = "TextChanged",
-      -- Enable autotrigger snippets
       enable_autosnippets = true,
-      -- Update events for real-time snippet updates
       update_events = "TextChanged,TextChangedI",
     },
     config = function(_, opts)
       require("luasnip").setup(opts)
-      
-      -- Load custom snippets if they exist
-      require("luasnip.loaders.from_lua").lazy_load({ paths = "./lua/snippets" })
-      
-      -- Friendly snippets
+      -- Load snippets once
       require("luasnip.loaders.from_vscode").lazy_load()
-      
-      -- Load snippets from installed packages
-      require("luasnip.loaders.from_vscode").lazy_load({ 
-        paths = { vim.fn.stdpath("data") .. "/lazy/friendly-snippets" } 
-      })
     end,
     keys = {
       {
